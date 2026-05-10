@@ -1,13 +1,19 @@
 import React from 'react'
+import {Route, Routes} from 'react-router-dom';
+import Home from './pages/Home';
+import Navbar from './components/Navbar';
+import Login from './components/Login';
 
 const App = () => {
   return (
-    <div>
-      <h1 className ="text-3xl font-bold underline">
-    Hello world!
-  </h1>
-    </div>
-  )
-}
+
+   <Routes>
+    <Route path="/" element=<Home /> />
+
+    <Route path='/login' element={<Login/>} />
+
+   </Routes>
+  );
+};
 
 export default App
