@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { navbarStyles } from '../assets/dummyStyles';
 
@@ -15,6 +15,26 @@ const Navbar = ({ logoSrc }) => {
 
   const [loggedIn, setLoggedIn] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
+  // use Effect hook to show the login state change 
+
+    useEffect(() => {
+    try {
+      const u = localStorage.getItem("authToken");
+      setLoggedIn(!!u);
+    } catch (e) {
+      setLoggedIn(false);
+    }
+
+    const handler = (ev) => {
+      const detailUser = ev?.detail?.user ?? null;
+      setLoggedIn(!!detailUser);
+    };
+    window.addEventListener("authChanged", handler);
+
+    return () => window.removeEventListener("authChanged", handler);
+  }, []);
+
 
   // Logout function
   const handleLogout = () => {

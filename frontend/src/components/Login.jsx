@@ -224,6 +224,8 @@ const Login = ({onLoginSuccess = null}) => {
             </div>
           </form>
          </div>
+
+         <style>{loginStyles.animations}</style>
     </div>
   );
 };
