@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { signupStyles } from '../assets/dummyStyles'
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Eye, EyeOff, Mail, User,Lock } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Eye, EyeOff, Mail, User, Lock } from 'lucide-react';
 
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -47,7 +47,7 @@ const Signup = ({ onSignupSuccess = null }) => {
                 password,
             };
 
-          const resp = await  fetch(`${API_BASE}/api/auth/register`, {
+            const resp = await fetch(`${API_BASE}/api/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
@@ -243,29 +243,29 @@ const Signup = ({ onSignupSuccess = null }) => {
 
                             <div className={signupStyles.buttonsContainer}>
                                 <button
-                                 type='submit'
-                                 disabled={loading}
-                                 className={signupStyles.submitButton}
+                                    type='submit'
+                                    disabled={loading}
+                                    className={signupStyles.submitButton}
                                 >
-                                { loading ? "Creating account ... " : "Create Account"}
+                                    {loading ? "Creating account ... " : "Create Account"}
                                 </button>
 
                             </div>
                         </div>
                     </div>
                 </form>
-                 
-                 <div className={signupStyles.loginPromptContainer}>
+
+                <div className={signupStyles.loginPromptContainer}>
                     <div className={signupStyles.loginPromptContent}>
                         <span className={signupStyles.loginPromptText}>
-                        Already have an account ?
+                            Already have an account ?
                         </span>
-                        <Link to="/login" className={signupStyles.loginPromptLink} > 
-                        Login 
+                        <Link to="/login" className={signupStyles.loginPromptLink} >
+                            Login
                         </Link>
                     </div>
 
-                 </div>
+                </div>
             </div>
         </div>
     );
