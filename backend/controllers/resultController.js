@@ -29,7 +29,7 @@ export async function createResult(req, res) {
 
     const payload = {
       title: String(title).trim(),
-      technology,
+      technology: technology.toLowerCase(),
       level,
       totalQuestions: Number(totalQuestions),
       correct: Number(correct),
@@ -37,7 +37,7 @@ export async function createResult(req, res) {
       user: req.user.id
     };
 
-    const created = await Result.create(playload);
+    const created = await Result.create(payload);
     return res.status(201).json({
         success: true,
         message: 'Result Created',
@@ -46,12 +46,13 @@ export async function createResult(req, res) {
     } 
 
      catch (err) {
-        console.error('CreateResult Error:', err);
-        return res.status(500).json({
-            success: false,
-            message: 'Server Error'
-        })
-    }
+   console.error(err);
+
+   return res.status(500).json({
+      success:false,
+      message: err.message
+   });
+}
 }
 
 // LIST THE RESULT
