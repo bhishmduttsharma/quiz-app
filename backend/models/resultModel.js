@@ -39,7 +39,7 @@
  });
 
  // compute score and performance 
- ResultSchema.pre('save', function (next) {
+ ResultSchema.pre('save', function () {
     const total = Number(this.totalQuestions) || 0;
     const correct = Number(this.correct) ||0;
 
@@ -54,7 +54,7 @@ if ((this.wrong === undefined || this.wrong === null) && total) {
   this.wrong = Math.max(0, total - correct);
 }
 
-next();
+
 });
 
 const Result = mongoose.models.Result || mongoose.model('Result', ResultSchema);
