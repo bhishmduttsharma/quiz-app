@@ -89,10 +89,6 @@ The backend seeds default technologies and an admin account on startup.
 
 Default admin credentials:
 
-```text
-Email: admin@quiz.com
-Password: Admin@123
-```
 
 ### 3. Frontend Setup
 
