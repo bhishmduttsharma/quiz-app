@@ -1,31 +1,24 @@
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import { connectDB } from './config/db.js';
-import userRouter from './routes/userRoutes.js';
-import resultRouter from './routes/resultRoutes.js';
+import app from "./app.js";
+import { connectDB } from "./config/db.js";
+import { env, validateEnv } from "./config/env.js";
+import { ensureAdminUser, seedDefaultTechnologies } from './utils/seedDefaults.js';
 
+const startServer = async () => {
+  try {
+    validateEnv();
+    await connectDB();
 
-const app = express();
-const port = 4000;
+    // Seed data keeps demos reliable on a fresh database.
+    await seedDefaultTechnologies();
+    await ensureAdminUser();
 
-//middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+    app.listen(env.port, () => {
+      console.log(`Server started on http://localhost:${env.port}`);
+    });
+  } catch (err) {
+    console.error("Server startup failed:", err.message);
+    process.exit(1);
+  }
+};
 
-//db
-connectDB();
-
-//routrs
-app.use('/api/auth', userRouter);
-app.use('/api/results', resultRouter);
-
-app.get('/', (req,res) => {
-    res.send('API WORKING');   
-});
-
-
-app.listen(port, () => {
-    console.log(`Server Started on http://localhost:${port}`)
-})
+startServer();

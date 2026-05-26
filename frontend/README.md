@@ -1,16 +1,62 @@
-# React + Vite
+# QuizMaster Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the React frontend for QuizMaster, a premium quiz and learning analytics platform.
 
-Currently, two official plugins are available:
+## Responsibilities
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Student quiz experience
+- Admin dashboard
+- Authentication pages
+- Analytics dashboard
+- Smart Coach recommendation UI
+- Result history and certificate generation
+- Responsive SaaS-style user interface
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19
+- Vite
+- Tailwind CSS
+- React Router
+- Framer Motion
+- Recharts
+- Axios
+- jsPDF
+- Lucide React
 
-## Expanding the ESLint configuration
+## Setup
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```bash
+npm install
+npm run dev
+```
+
+Default development URL:
+
+```text
+http://localhost:5173
+```
+
+Optional `.env`:
+
+```env
+VITE_API_BASE_URL=http://localhost:4000
+```
+
+## Scripts
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run preview
+```
+
+## Important Files
+
+- `src/App.jsx`: routes, protected route guards, lazy loading, page transitions
+- `src/components/Sidebar.jsx`: quiz engine and adaptive practice entry
+- `src/pages/AnalyticsDashboard.jsx`: charts, leaderboard, Smart Coach UI
+- `src/pages/AdminPanel.jsx`: admin CRUD dashboard
+- `src/components/UiStates.jsx`: skeleton loaders, empty states, error states
+- `src/config.js`: backend API base URL

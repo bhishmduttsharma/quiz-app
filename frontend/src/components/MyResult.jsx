@@ -6,6 +6,11 @@ import { useMemo } from 'react';
 import { useCallback } from 'react';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
+import { jsPDF } from 'jspdf';
+import { Download } from 'lucide-react';
+import { getCurrentUser } from '../utils/auth';
+import { API_BASE } from '../config';
+import { DashboardSkeleton, EmptyState, ErrorState } from './UiStates';
 
 
 const Badge = ({ percent }) => {
@@ -18,7 +23,7 @@ const Badge = ({ percent }) => {
   return <span className={resultStyles.badgeNeedsWork}>Needs Work</span>;
 };
 
-const MyResult = ({ apiBase = "http://localhost:4000" }) => {
+const MyResult = ({ apiBase = API_BASE }) => {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -78,7 +83,6 @@ const MyResult = ({ apiBase = "http://localhost:4000" }) => {
     return () => {
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiBase, selectedTechnology, getAuthHeader]);
 
 
@@ -100,14 +104,12 @@ const MyResult = ({ apiBase = "http://localhost:4000" }) => {
             if (r.technology) set.add(r.technology);
           });
           const arr = Array.from(set).sort((a, b) => a.localeCompare(b));
-          console.log(arr);
-
           setTechnologies(arr);
         } else {
           // leave technologies empty (will still show "All")
         }
       } catch (err) {
-        // silent — no need to block main UI; log for debug
+          // Silent: no need to block main UI; log for debug.
         console.error(
           "Failed to fetch technologies:",
           err?.response?.data || err.message || err
@@ -118,7 +120,6 @@ const MyResult = ({ apiBase = "http://localhost:4000" }) => {
     return () => {
       mounted = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiBase, getAuthHeader]);
 
 
@@ -164,13 +165,23 @@ const MyResult = ({ apiBase = "http://localhost:4000" }) => {
         <header className={resultStyles.header}>
           <div>
             <h1 className={resultStyles.title}>Quiz Results </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+              Download certificates, filter attempts, and track progress across every quiz category.
+            </p>
           </div>
           <div className={resultStyles.headerControls} />
         </header>
 
+        <div className="mb-6 grid gap-3 sm:grid-cols-4">
+          <SummaryTile label="Attempts" value={Array.isArray(results) ? results.length : 0} />
+          <SummaryTile label="Questions" value={summary.totalQs} />
+          <SummaryTile label="Correct" value={summary.totalCorrect} />
+          <SummaryTile label="Accuracy" value={`${summary.pct}%`} />
+        </div>
+
         <div className={resultStyles.filterContainer}>
           <div className={resultStyles.filterContent}>
-            <div className={resultStyles.filterButton}>
+            <div className={resultStyles.filterButtons}>
               <span className={resultStyles.filterLabel}>Filter by tech:</span>
 
               <button
@@ -227,13 +238,9 @@ const MyResult = ({ apiBase = "http://localhost:4000" }) => {
         </div>
 
         {loading ? (
-          <div className={resultStyles.loadingContainer}>
-            <div className={resultStyles.loadingSpinner} />
-            <div className={resultStyles.loadingText}>
-              Loading results...
-            </div>
-
-          </div>
+          <DashboardSkeleton cards={4} rows={2} />
+        ) : error ? (
+          <ErrorState title="Results could not be loaded" message={error} />
         ) : (
           <>
             {Object.entries(grouped).map(([track, items]) => (
@@ -249,9 +256,10 @@ const MyResult = ({ apiBase = "http://localhost:4000" }) => {
             ))}
 
             {Array.isArray(results) && results.length === 0 && !error && (
-              <div className={resultStyles.emptyState}>
-                No results yet. Take a quiz to see result here.
-              </div>
+              <EmptyState
+                title="No quiz results yet"
+                message="Complete your first quiz to unlock score history, certificates, and accuracy insights."
+              />
             )}
           </>
         )}
@@ -260,6 +268,16 @@ const MyResult = ({ apiBase = "http://localhost:4000" }) => {
   );
 };
 
+function SummaryTile({ label, value }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-white/[0.07] p-4 shadow-xl shadow-black/15 backdrop-blur-xl">
+      <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+        {label}
+      </p>
+      <p className="mt-2 text-2xl font-black text-white">{value}</p>
+    </div>
+  );
+}
 
 function StripCard({ item }) {
   const percent = item.totalQuestions
@@ -277,6 +295,45 @@ function StripCard({ item }) {
   };
 
   const level = getLevel(item);
+  const downloadCertificate = () => {
+    const user = getCurrentUser();
+    const percent = item.totalQuestions
+      ? Math.round((Number(item.correct) / Number(item.totalQuestions)) * 100)
+      : 0;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'pt', format: 'a4' });
+
+    doc.setFillColor(2, 6, 23);
+    doc.rect(0, 0, 842, 595, 'F');
+    doc.setDrawColor(103, 232, 249);
+    doc.setLineWidth(4);
+    doc.roundedRect(36, 36, 770, 523, 18, 18, 'S');
+    doc.setTextColor(103, 232, 249);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text('QuizMaster Certificate', 421, 110, { align: 'center' });
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(42);
+    doc.text('Certificate of Achievement', 421, 185, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(16);
+    doc.setTextColor(203, 213, 225);
+    doc.text('This certificate is proudly presented to', 421, 235, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(30);
+    doc.setTextColor(255, 255, 255);
+    doc.text(user?.name || 'Student', 421, 285, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(16);
+    doc.setTextColor(203, 213, 225);
+    doc.text(`for completing ${item.title} with a score of ${percent}%`, 421, 335, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(134, 239, 172);
+    doc.text(`Performance: ${item.performance || 'Completed'}`, 421, 380, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Issued on ${new Date(item.createdAt || Date.now()).toLocaleDateString()}`, 421, 492, { align: 'center' });
+    doc.save(`${item.title || 'quiz'}-certificate.pdf`.replace(/\s+/g, '-').toLowerCase());
+  };
 
 
   return (
@@ -295,7 +352,7 @@ function StripCard({ item }) {
 
               <div className={resultStyles.cardMeta}>
                 {item.totalQuestions} Qs
-                  {item.timeSpent ? ` • ${item.timeSpent}` : ""}
+                  {item.timeSpent ? ` - ${item.timeSpent}` : ""}
               </div>
             </div>
           </div>
@@ -305,6 +362,14 @@ function StripCard({ item }) {
             <div className={resultStyles.badgeContainer}>
               <Badge percent={percent} />
             </div>
+            <button
+              type="button"
+              onClick={downloadCertificate}
+              className="mt-3 inline-flex items-center justify-center gap-1 rounded-md border border-cyan-300/20 bg-cyan-300/10 px-2.5 py-1.5 text-xs font-black text-cyan-100 transition hover:bg-cyan-300/15"
+            >
+              <Download size={14} />
+              Certificate
+            </button>
           </div>
         </div>
 
@@ -316,7 +381,7 @@ function StripCard({ item }) {
 
            <div className={resultStyles.statItem}>
             Wrong:
-            <span className={resultStyles.statNumber}>{item.correct}</span>
+            <span className={resultStyles.statNumber}>{item.wrong}</span>
           </div>
 
           <div className={resultStyles.statItem}>

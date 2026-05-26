@@ -1,15 +1,12 @@
 import mongoose from "mongoose";
+import { env } from "./env.js";
 
 export const connectDB = async () => {
+  mongoose.set("strictQuery", true);
 
-    await mongoose.connect(process.env.MONGODB_URI)
+  await mongoose.connect(env.mongoUri, {
+    serverSelectionTimeoutMS: 10000,
+  });
 
-    .then(() => {
-        console.log('DB CONNECTED');
-    })
-
-    .catch((error) => {
-        console.log('DB ERROR:', error);
-    });
-
-}
+  console.log("DB connected");
+};

@@ -15,20 +15,8 @@
       type: String,
       required: true,
       trim: true,
-      enum: [
-        "html",
-        "css",
-        "js",
-        "react",
-        "node",
-        "mongodb",
-        "java",
-        "python",
-        "cpp",
-        "bootstrap"
-      ]
     },
-    level: { type: String, required: true, enum: ["basic", "intermediate", "advanced"] },
+    level: { type: String, required: true, lowercase: true, trim: true },
     totalQuestions: { type: Number, required: true, min: 0 },
     correct: { type: Number, required: true, min: 0, default: 0 },
     wrong: { type: Number, required: true, min: 0, default: 0 },
@@ -56,6 +44,10 @@ if ((this.wrong === undefined || this.wrong === null) && total) {
 
 
 });
+
+ResultSchema.index({ user: 1, createdAt: -1 });
+ResultSchema.index({ technology: 1, score: -1 });
+ResultSchema.index({ createdAt: -1 });
 
 const Result = mongoose.models.Result || mongoose.model('Result', ResultSchema);
 export default Result;
